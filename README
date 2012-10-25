@@ -1,0 +1,20 @@
+Hi:
+
+Don't be cruel as this is my first C program....i am a network/it guy, not a programmer....
+This is a C versión of the clear, well programed (at least for a newbie like me) vdrnfofs in python 
+http://projects.vdr-developer.org/projects/vdrnfofs
+I started doing it for two reasons:
+- To learn a bit of C.
+- Thinking that making it in C will speed up reads to transcode the video. I noticed a little bit more speed but nothing worth of.
+
+To compile (needs fuse-devel, libfuse-devel,etc. depends on linux distribution)
+
+gcc -g -Wall vdrfs4.c `pkg-config fuse --cflags --libs`  -o vdrfs4.exe
+
+I have to try later with -o2 to see what happens.
+
+To run (needs fuse):
+./vdrfs4.exe /media/disk/tele /mnt/tmp -o allow_other 
+
+where /media/disk/tele it's the folder containing vdr records and /mnt/tmp the mounted directory.
+You can pass options to fuse with -o parameter, in this sample we add allow_other to allow other users apart from root to mount the filesystem.
