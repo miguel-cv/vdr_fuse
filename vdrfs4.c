@@ -6,7 +6,12 @@
   This program can be distributed under the terms of the GNU GPL.
   See the file COPYING.
 
-  gcc -Wall fusexmp.c `pkg-config fuse --cflags --libs` -o fusexmp
+  gcc -Wall vdr-fuse.c `pkg-config fuse --cflags --libs` -o vdr-fuse
+
+  Adapted from fusexmp.c
+  FUSE filesystem to see the vdr recordings as single mpg files.
+
+  Miguel CV miguelcv  gmail.com 
 */
 
 #define FUSE_USE_VERSION 26
@@ -102,13 +107,9 @@ static int vdr_getattr(const char *path, struct stat *stbuf)
 	char *pathreal ;
 	char *parte1 ;
 	
-	char *temp=strstr(path,".rec.mpg\0");
 	
-	if (!temp) 
-	{
-	  if (!(strstr(path,"/\0")) )
-	  return -ENOENT;
-	}
+	if ( (!(strstr(path,".rec.mpg\0"))) || (!(strstr(path,"/\0"))) ) return -ENOENT;
+	
 	pdest="";
 	parte1 = malloc (PATH_MAX);
 	memset(parte1, 0, PATH_MAX);
@@ -346,15 +347,22 @@ static int vdr_open(const char *path, struct fuse_file_info *fi)
 	char *pathreal ;
 	char *parte1 ;
 	
+	if (!(strstr(path,".rec.mpg")) )
+	{
+	  if (!(strstr(path,"/\0")) )
+	  return -ENOENT;
+	}
+
 	pdest="";
-	
+	res=-ENOENT ;
+
 	parte1 = malloc (PATH_MAX);
 	memset(parte1, 0, PATH_MAX);
 	pathreal = malloc (PATH_MAX);
 	memset(pathreal, 0, PATH_MAX);
 	
 	  pdest=strrchr(path,'_');
-	  if (pdest == NULL) { res= -ENOENT; goto libera2; }
+	  if (pdest == NULL) goto libera2; 
 	  resu=pdest-path;
 	  if (resu < 0) resu=0;
 	  strncpy(parte1,path,resu);
@@ -362,9 +370,8 @@ static int vdr_open(const char *path, struct fuse_file_info *fi)
 	  strcat(pathreal,parte1);
 	  strcat(pathreal,"/");
 	  if (pdest) strcat(pathreal,pdest+1);
-	  pathreal[strlen(pathreal)-4]=0;
-	  
-	  if (get_size(pathreal) !=0 ) res=0; else res= -ENOENT;
+	  pathreal[strlen(pathreal)-4]=0;	  
+	  if (get_size(pathreal) !=0 ) res=0;
 libera2:
 
 	free (parte1);
