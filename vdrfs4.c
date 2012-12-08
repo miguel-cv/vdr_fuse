@@ -108,7 +108,7 @@ static int vdr_getattr(const char *path, struct stat *stbuf)
 	char *parte1 ;
 	
 	
-	if ( (!(strstr(path,".rec.mpg\0"))) || (!(strstr(path,"/\0"))) ) return -ENOENT;
+	if ( (!(strstr(path,".rec.mpg\0"))) && (!(strstr(path,"/\0"))) ) return -ENOENT;
 	
 	pdest="";
 	parte1 = malloc (PATH_MAX);
@@ -335,11 +335,6 @@ static int vdr_utimens(const char *path, const struct timespec ts[2])
 static int vdr_open(const char *path, struct fuse_file_info *fi)
 {
 	int res;
-
-	//res = open(path, fi->flags);
-	//if (res == -1)
-	//	return -errno;
-	//close(res);
 	
 	int resu;
 
@@ -347,11 +342,7 @@ static int vdr_open(const char *path, struct fuse_file_info *fi)
 	char *pathreal ;
 	char *parte1 ;
 	
-	if (!(strstr(path,".rec.mpg")) )
-	{
-	  if (!(strstr(path,"/\0")) )
-	  return -ENOENT;
-	}
+	if ( !(strstr(path,".mpg\0")) ) return -ENOENT;
 
 	pdest="";
 	res=-ENOENT ;
